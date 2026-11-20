@@ -1,0 +1,23 @@
+What if your phone could replace your mouse and your notebook? 📱✍️
+
+I built SmartPad, a side project that turns any phone into:
+
+🖱️ A wireless touchpad: move, tap, right-click, scroll, drag and type on your computer from your phone.
+✍️ A handwriting pad: write with a finger or stylus, and SmartPad converts it to text.
+📄 A document maker: it organizes your notes into professional notes, reports, meeting notes or outlines, then exports them to Word, PDF, TXT or Markdown.
+
+There's no app to install. You run a small server on your computer, scan a QR code, and the phone opens it in the browser.
+
+What I'm most proud of:
+🔒 Everything runs locally. Handwriting recognition uses Microsoft's open TrOCR model on the CPU, and spelling is corrected by an offline dictionary. No API key, no cloud, no account. Your notes never leave your network.
+⚡ Low latency. Touch events go over WebSockets, batched once per screen refresh, at about 5 ms on local Wi-Fi.
+🔐 Secure pairing. Each computer has its own token, carried in the QR code, so other devices on the same Wi-Fi can't take control.
+👥 Several people can share it. Each person installs a small helper on their own computer and gets their own QR code, so their phone controls their own computer.
+
+Tech stack: Python, FastAPI, WebSockets, PyTorch + Transformers (TrOCR), pynput, python-docx, ReportLab, and plain JavaScript with no build step on the phone side.
+
+The biggest lesson: a browser can't move your mouse, for good security reasons. Working within that limit pushed me to a cleaner design, with one central server plus a small helper on each computer.
+
+What feature would you add next? 👇
+
+#Python #FastAPI #MachineLearning #OCR #WebSockets #SideProject #BuildInPublic #SoftwareEngineering #Productivity

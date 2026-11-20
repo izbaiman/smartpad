@@ -1,0 +1,11 @@
+{
+  "name": "SmartPad",
+  "short_name": "SmartPad",
+  "description": "Wireless touchpad and smart handwriting pad for your computer",
+  "start_url": "/#home",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f6fb",
+  "theme_color": "#2f5bea",
+  "icons": [{ "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

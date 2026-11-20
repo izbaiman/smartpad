@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#2f5bea">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>SmartPad</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="icon-btn" id="backBtn" aria-label="Back" hidden>
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1 id="screenTitle">SmartPad</h1>
+    <button class="status" id="statusChip" data-go="connect" aria-label="Connection status">
+      <span class="dot"></span><span class="label">Offline</span>
+    </button>
+  </header>
+
+  <main id="app">
+    <!-- HOME ---------------------------------------------------------- -->
+    <section class="screen" data-screen="home" data-title="SmartPad">
+      <div class="hero">
+        <p class="eyebrow">Phone → Computer</p>
+        <h2>Touchpad &amp; smart handwriting</h2>
+        <p class="muted" id="homeHint">Scan the QR code on your computer to connect.</p>
+      </div>
+      <div class="grid">
+        <button class="tile" data-go="connect"><span class="ti">📶</span><b>Connect to Computer</b><small id="tileConnect">Not connected</small></button>
+        <button class="tile" data-go="touchpad"><span class="ti">🖱️</span><b>Wireless Touchpad</b><small>Move, tap, scroll</small></button>
+        <button class="tile" data-go="canvas"><span class="ti">✍️</span><b>Handwriting Canvas</b><small>Write with finger or stylus</small></button>
+        <button class="tile" data-go="review"><span class="ti">🔤</span><b>Convert to Text</b><small>Review recognised text</small></button>
+        <button class="tile" data-go="organize"><span class="ti">✨</span><b>AI Text Organizer</b><small>Notes, reports, outlines</small></button>
+        <button class="tile" data-go="history"><span class="ti">🗂️</span><b>Document History</b><small>Saved documents</small></button>
+        <button class="tile" data-go="export"><span class="ti">📤</span><b>Export Documents</b><small>Word, PDF, TXT, MD</small></button>
+        <button class="tile" data-go="settings"><span class="ti">⚙️</span><b>Settings</b><small>Sensitivity, language…</small></button>
+      </div>
+    </section>
+
+    <!-- CONNECT ------------------------------------------------------- -->
+    <section class="screen" data-screen="connect" data-title="Connect">
+      <div class="card">
+        <div class="conn-row"><span class="big-dot" id="connDot"></span><div><b id="connState">Not connected</b><div class="muted small" id="connDetail"></div></div></div>
+        <dl class="kv">
+          <dt>Computer</dt><dd id="connHost"></dd>
+          <dt>Latency</dt><dd id="connLatency">–</dd>
+          <dt>Mouse control</dt><dd id="connInput">–</dd>
+          <dt>AI engine</dt><dd id="connAI">–</dd>
+        </dl>
+        <div class="row">
+          <button class="btn" id="reconnectBtn">Reconnect</button>
+          <button class="btn ghost" id="forgetBtn">Forget pairing</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>How to pair</h3>
+        <ol class="steps">
+          <li>Run <code>start.bat</code> (or <code>python run.py</code>) on your computer.</li>
+          <li>Connect the phone to the <b>same Wi-Fi</b>.</li>
+          <li>Scan the QR code on the computer screen with the phone camera.</li>
+        </ol>
+        <p class="muted small">Opened this page by typing the address? Enter the pairing code shown on the computer:</p>
+        <div class="row">
+          <input id="codeInput" class="input" placeholder="Pairing code" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button class="btn" id="codeBtn">Pair</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOUCHPAD ------------------------------------------------------ -->
+    <section class="screen full" data-screen="touchpad" data-title="Touchpad">
+      <div class="pad-wrap">
+        <div id="pad" class="pad" aria-label="Touchpad surface">
+          <div class="pad-hint" id="padHint">
+            <p><b>1 finger</b> move · <b>tap</b> click</p>
+            <p><b>2 fingers</b> scroll · <b>2-finger tap</b> right-click</p>
+            <p><b>double-tap &amp; hold</b> drag · <b>long press</b> right-click</p>
+          </div>
+        </div>
+        <div id="scrollStrip" class="scroll-strip" aria-label="Scroll strip"><span>⇕</span></div>
+      </div>
+      <div class="pad-buttons">
+        <button class="mbtn" id="leftBtn">Left</button>
+        <button class="mbtn kb" id="kbBtn" aria-label="Keyboard">⌨</button>
+        <button class="mbtn" id="rightBtn">Right</button>
+      </div>
+      <div class="kb-panel" id="kbPanel" hidden>
+        <div class="row">
+          <input id="kbInput" class="input" placeholder="Type text to send to the computer" autocomplete="off">
+          <button class="btn" id="kbSend">Send</button>
+        </div>
+        <div class="keys">
+          <button data-key="backspace">⌫</button><button data-key="enter">⏎</button><button data-key="tab">Tab</button>
+          <button data-key="esc">Esc</button><button data-key="left">←</button><button data-key="up">↑</button>
+          <button data-key="down">↓</button><button data-key="right">→</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CANVAS -------------------------------------------------------- -->
+    <section class="screen full" data-screen="canvas" data-title="Handwriting">
+      <div class="toolbar" id="toolbar">
+        <button class="tool active" data-tool="pen" aria-label="Pen">✏️</button>
+        <button class="tool" data-tool="eraser" aria-label="Eraser">🧽</button>
+        <div class="colors" id="colors">
+          <button class="swatch active" data-color="#111111" style="--c:#111111" aria-label="Black"></button>
+          <button class="swatch" data-color="#1d4ed8" style="--c:#1d4ed8" aria-label="Blue"></button>
+          <button class="swatch" data-color="#dc2626" style="--c:#dc2626" aria-label="Red"></button>
+          <button class="swatch" data-color="#15803d" style="--c:#15803d" aria-label="Green"></button>
+        </div>
+        <label class="size"><input type="range" id="penSize" min="1" max="16" value="3" aria-label="Pen thickness"><span id="penSizeVal">3</span></label>
+        <button class="tool" id="undoBtn" aria-label="Undo">↶</button>
+        <button class="tool" id="redoBtn" aria-label="Redo">↷</button>
+        <button class="tool" id="clearBtn" aria-label="Clear">🗑️</button>
+        <button class="tool" id="saveInkBtn" aria-label="Save handwriting">💾</button>
+      </div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="ink"></canvas>
+        <div class="lines" aria-hidden="true"></div>
+      </div>
+      <div class="canvas-actions">
+        <select id="langSelect" class="input slim" aria-label="Language">
+          <option value="en">English</option>
+          <option value="ur">اردو Urdu</option>
+        </select>
+        <span class="muted small" id="pageInfo"></span>
+        <button class="btn primary" id="convertBtn">Convert to text →</button>
+      </div>
+    </section>
+
+    <!-- REVIEW -------------------------------------------------------- -->
+    <section class="screen" data-screen="review" data-title="Review text">
+      <div class="card">
+        <div class="row between"><h3>Recognised text</h3><span class="badge" id="engineBadge"></span></div>
+        <p class="muted small">Check and correct the text before organising. Your words are kept as written.</p>
+        <textarea id="rawText" class="textarea" rows="10" placeholder="Recognised handwriting appears here. You can also type or paste text."></textarea>
+        <div class="row">
+          <button class="btn ghost" id="writeMoreBtn">✍️ Write more</button>
+          <button class="btn ghost" id="clearTextBtn">Clear</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Output style</h3>
+        <div class="chips" id="styleChips"></div>
+        <label class="switch"><input type="checkbox" id="useAI" checked><span id="useAILabel">Spelling correction</span></label>
+        <button class="btn primary block" id="organizeBtn">✨ Organize text</button>
+      </div>
+    </section>
+
+    <!-- ORGANIZE (result) --------------------------------------------- -->
+    <section class="screen" data-screen="organize" data-title="Organized document">
+      <div class="card" id="emptyDoc" hidden>
+        <p>No document yet. Write on the canvas, or type text in <a href="#review">Convert to Text</a>, then tap <b>Organize</b>.</p>
+      </div>
+      <div id="docArea">
+        <div class="card">
+          <input id="docTitle" class="input title" placeholder="Document title">
+          <div class="row between">
+            <div class="seg"><button class="active" data-view="preview">Preview</button><button data-view="edit">Edit</button></div>
+            <span class="badge" id="fmtBadge"></span>
+          </div>
+          <article id="preview" class="doc"></article>
+          <textarea id="mdEdit" class="textarea mono" rows="16" hidden></textarea>
+        </div>
+        <div class="card" id="exportCard">
+          <h3>Export</h3>
+          <div class="export-grid">
+            <button class="btn" data-export="docx">📄 Word</button>
+            <button class="btn" data-export="pdf">📕 PDF</button>
+            <button class="btn" data-export="txt">📝 TXT</button>
+            <button class="btn" data-export="md">Ⓜ️ Markdown</button>
+          </div>
+          <label class="switch"><input type="checkbox" id="exportToPC"><span>Save the file on the computer instead of the phone</span></label>
+          <div class="row">
+            <button class="btn ghost" id="saveDocBtn">💾 Save to history</button>
+            <button class="btn ghost" id="typeBtn">⌨ Type on computer</button>
+            <button class="btn ghost" id="copyBtn">Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY ------------------------------------------------------- -->
+    <section class="screen" data-screen="history" data-title="History">
+      <div id="historyList" class="list"></div>
+    </section>
+
+    <!-- SETTINGS ------------------------------------------------------ -->
+    <section class="screen" data-screen="settings" data-title="Settings">
+      <div class="card">
+        <h3>Touchpad</h3>
+        <label class="field">Pointer speed <input type="range" min="0.5" max="4" step="0.1" data-setting="sensitivity"><output></output></label>
+        <label class="field">Acceleration <input type="range" min="0" max="2" step="0.1" data-setting="acceleration"><output></output></label>
+        <label class="field">Scroll speed <input type="range" min="0.2" max="3" step="0.1" data-setting="scrollSpeed"><output></output></label>
+        <label class="switch"><input type="checkbox" data-setting="naturalScroll"><span>Natural scrolling</span></label>
+        <label class="switch"><input type="checkbox" data-setting="tapToClick"><span>Tap to click</span></label>
+        <label class="switch"><input type="checkbox" data-setting="haptics"><span>Vibration feedback</span></label>
+      </div>
+      <div class="card">
+        <h3>Handwriting</h3>
+        <label class="switch"><input type="checkbox" data-setting="penOnly"><span>Stylus only (ignore finger / palm)</span></label>
+        <label class="switch"><input type="checkbox" data-setting="keepDrafts"><span>Keep canvas drafts on this phone</span></label>
+        <label class="field">Default language
+          <select class="input slim" data-setting="language"><option value="en">English</option><option value="ur">Urdu</option></select>
+        </label>
+        <label class="field">Default style <select class="input slim" data-setting="style" id="defaultStyle"></select></label>
+      </div>
+      <div class="card">
+        <h3>Privacy</h3>
+        <p class="muted small">Handwriting and documents are only stored when you tap <b>Save</b>. Images are sent to the computer for recognition; if the computer uses the Claude AI engine they are forwarded to Anthropic's API for processing. The API key stays on the computer.</p>
+        <label class="switch"><input type="checkbox" data-setting="saveImage"><span>Include handwriting image when saving documents</span></label>
+      </div>
+      <p class="muted small center" id="versionInfo"></p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="busy" id="busy" hidden><div class="spinner"></div><p id="busyText">Working…</p></div>
+
+  <script src="/static/markdown.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

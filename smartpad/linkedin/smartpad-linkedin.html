@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SmartPad LinkedIn</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 1200px; overflow: hidden; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #eef1fb;
+    background:
+      radial-gradient(900px 600px at 85% 10%, rgba(91,127,255,.35), transparent 60%),
+      radial-gradient(700px 600px at 0% 100%, rgba(34,197,94,.18), transparent 60%),
+      #0b1020;
+    padding: 72px 76px;
+    position: relative;
+  }
+  .grid { position:absolute; inset:0; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 48px 48px; pointer-events:none; }
+  .tag { display:inline-flex; align-items:center; gap:10px; font-size:22px; font-weight:600; color:#a9b8ff; background:rgba(91,127,255,.14); border:1px solid rgba(91,127,255,.4); padding:9px 18px; border-radius:999px; }
+  .tag i { width:10px; height:10px; border-radius:50%; background:#22c55e; box-shadow:0 0 12px #22c55e; }
+  h1 { font-size: 92px; line-height: 1; letter-spacing: -2px; margin-top: 30px; font-weight: 800; }
+  h1 span { background: linear-gradient(90deg,#7c9bff,#4ade80); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { font-size: 33px; line-height: 1.35; color:#c3cbe3; margin-top: 22px; max-width: 980px; }
+
+  .stage { position:absolute; left:76px; right:76px; top:430px; height:440px; }
+  /* phone */
+  .phone { position:absolute; left:40px; top:0; width:230px; height:440px; border-radius:38px; background:#151b2e; border:3px solid #34406a; box-shadow:0 30px 60px rgba(0,0,0,.5); padding:16px 14px; }
+  .notch { width:80px; height:8px; border-radius:6px; background:#2a3352; margin:0 auto 14px; }
+  .pad { height:250px; border-radius:20px; background:linear-gradient(160deg,#1d2542,#141a2e); border:1px solid #2e3a62; position:relative; overflow:hidden; }
+  .pad .trail { position:absolute; left:40px; top:160px; width:120px; height:70px; border-top:4px dotted rgba(124,155,255,.8); border-radius:60px 60px 0 0; transform:rotate(-24deg); }
+  .pad .finger { position:absolute; left:140px; top:96px; width:38px; height:38px; border-radius:50%; background:rgba(124,155,255,.35); border:2px solid #9fb3ff; box-shadow:0 0 24px rgba(124,155,255,.7); }
+  .btns { display:flex; gap:8px; margin-top:12px; } .btns div { flex:1; height:44px; border-radius:12px; background:#222b4a; border:1px solid #2e3a62; }
+  .ink { margin-top:12px; height:70px; border-radius:14px; background:#f7f8fc; position:relative; overflow:hidden; }
+  .ink svg { position:absolute; inset:0; }
+
+  /* link */
+  .link { position:absolute; left:290px; top:150px; width:270px; height:120px; }
+  .link .line { position:absolute; left:0; right:0; top:58px; border-top:4px dashed rgba(124,155,255,.7); }
+  .link .chip { position:absolute; left:50%; top:20px; transform:translateX(-50%); font-size:20px; font-weight:600; background:#0b1020; color:#a9b8ff; border:1px solid rgba(91,127,255,.5); padding:6px 14px; border-radius:999px; white-space:nowrap; }
+  .link .chip2 { top:76px; color:#86efac; border-color:rgba(34,197,94,.5); }
+
+  /* laptop */
+  .laptop { position:absolute; left:580px; top:20px; width:470px; }
+  .screen { height:300px; border-radius:18px 18px 6px 6px; background:#151b2e; border:3px solid #34406a; padding:18px; position:relative; box-shadow:0 30px 60px rgba(0,0,0,.45); }
+  .doc { background:#f7f8fc; color:#141a2b; border-radius:10px; height:100%; padding:18px 22px; font-size:15px; line-height:1.45; }
+  .doc b { display:block; font-size:22px; margin-bottom:6px; } .doc em { display:block; font-style:normal; font-weight:700; color:#2f5bea; margin-top:6px; }
+  .cursor { position:absolute; right:44px; top:34px; width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-bottom:34px solid #fff; transform:rotate(-30deg); filter:drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+  .cursor::after { content:""; }
+  .base { height:20px; margin:0 -30px; border-radius:0 0 22px 22px; background:#2a3352; }
+
+  .features { position:absolute; left:76px; right:76px; bottom:72px; display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .f { background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:20px 18px; }
+  .f .ic { font-size:30px; } .f b { display:block; font-size:22px; margin-top:8px; } .f small { display:block; font-size:17px; color:#9aa5c4; margin-top:4px; line-height:1.35; }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="tag"><i></i> Side project · Python · FastAPI · On-device AI</div>
+  <h1>Smart<span>Pad</span></h1>
+  <p class="sub">Your phone becomes a wireless touchpad and a handwriting pad that turns notes into Word &amp; PDF documents, running locally on your own computer.</p>
+
+  <div class="stage">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="pad"><div class="trail"></div><div class="finger"></div></div>
+      <div class="btns"><div></div><div></div></div>
+      <div class="ink">
+        <svg viewBox="0 0 200 70"><path d="M12 44 q8 -22 16 0 t16 0 M52 30 v22 M52 40 q6 -10 14 -2 v14 M76 42 q10 -14 18 0 q-10 12 -18 0 M104 28 v24 q10 4 14 -6 M126 44 q8 -16 16 0 t14 2 M164 30 q12 -6 14 8 q-2 14 -16 12" fill="none" stroke="#2f5bea" stroke-width="3" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="link">
+      <div class="line"></div>
+      <div class="chip">Wi-Fi · scan a QR code</div>
+      <div class="chip chip2">~5 ms latency</div>
+    </div>
+
+    <div class="laptop">
+      <div class="screen">
+        <div class="doc">
+          <b>COMPUTER</b>
+          <em>1. Introduction</em>
+          A computer is an electronic machine that accepts data, processes it and produces information.
+          <em>2. Main Components</em>
+          • Hardware &nbsp; • Software
+          <em>3. Summary</em>
+          Data goes in, information comes out.
+        </div>
+        <div class="cursor"></div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="f"><div class="ic">🖱️</div><b>Touchpad</b><small>Move, tap, scroll, drag &amp; type from your phone</small></div>
+    <div class="f"><div class="ic">✍️</div><b>Handwriting → Text</b><small>On-device TrOCR model, no API key</small></div>
+    <div class="f"><div class="ic">📄</div><b>Smart formatting</b><small>Notes, reports, outlines → DOCX / PDF</small></div>
+    <div class="f"><div class="ic">🔒</div><b>Private by design</b><small>No app install, nothing leaves your network</small></div>
+  </div>
+</body>
+</html>

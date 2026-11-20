@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartPad · This Computer</title>
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <style>
+    :root { --bg:#f4f6fb; --surface:#fff; --text:#141a2b; --muted:#5d6680; --line:#e2e6f0; --primary:#2f5bea; --ok:#16a34a; --bad:#dc2626; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f1320; --surface:#181e2e; --text:#e7ebf5; --muted:#96a0ba; --line:#283049; --primary:#5b7fff; } }
+    * { box-sizing: border-box; }
+    body { margin:0; font:15px/1.5 system-ui, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); }
+    .wrap { max-width:980px; margin:0 auto; padding:28px 16px; display:grid; gap:16px; grid-template-columns: minmax(0,1fr); }
+    @media (min-width:820px) { .wrap.paired { grid-template-columns: 360px minmax(0,1fr); } header { grid-column:1/-1; } }
+    header h1 { margin:0; font-size:24px; } header p { margin:4px 0 0; color:var(--muted); }
+    .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; }
+    .card h2 { margin:0 0 12px; font-size:16px; }
+    .qr { background:#fff; border-radius:10px; padding:10px; } .qr svg { width:100%; height:auto; display:block; }
+    .url { font-family:ui-monospace,Consolas,monospace; font-size:12.5px; word-break:break-all; color:var(--muted); margin-top:10px; }
+    .code { font-family:ui-monospace,Consolas,monospace; font-size:15px; background:var(--bg); border:1px solid var(--line); padding:6px 10px; border-radius:8px; display:inline-block; user-select:all; word-break:break-all; }
+    select, button, .btn { font:inherit; padding:8px 12px; border-radius:9px; border:1px solid var(--line); background:var(--bg); color:var(--text); text-decoration:none; display:inline-block; cursor:pointer; }
+    .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+    table { width:100%; border-collapse:collapse; } td, th { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); font-size:14px; } th { color:var(--muted); font-weight:600; }
+    .dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--ok); margin-right:6px; }
+    .kv { display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin:0; } .kv dt { color:var(--muted); } .kv dd { margin:0; }
+    .muted { color:var(--muted); } .bad { color:var(--bad); } .ok { color:var(--ok); }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+    ol.steps { margin:0; padding-left:20px; display:grid; gap:10px; }
+    [hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+  <!-- Not set up yet: download the helper -->
+  <div class="wrap" id="setup">
+    <header>
+      <h1>Use your phone with this computer</h1>
+      <p>Browsers can't move the mouse by themselves, so this computer needs the small SmartPad helper running.</p>
+    </header>
+    <section class="card">
+      <h2>Set up (once)</h2>
+      <ol class="steps">
+        <li><a class="btn primary" href="/agent/download">Download SmartPad Helper</a> and unzip it anywhere (right-click → <b>Extract All</b>).</li>
+        <li>Double-click <b>SmartPad Helper.exe</b>. Nothing to install, no Python needed. If Windows SmartScreen warns, click <b>More info → Run anyway</b>.<br>
+          <span class="muted" style="font-size:13px">macOS/Linux: use the <i>with-python</i> folder and run <code>sh start_helper.sh</code> (needs Python 3.9+).</span></li>
+        <li>A page with <b>your own QR code</b> opens. Scan it with your phone: that phone controls <b>this computer only</b>.</li>
+      </ol>
+      <p class="muted" id="setupHint" style="margin-bottom:0">Already ran the helper? Its window shows the link to your QR code page.</p>
+    </section>
+  </div>
+
+  <!-- Helper running: this computer's own QR code -->
+  <div class="wrap paired" id="paired" hidden>
+    <header>
+      <h1 id="title">SmartPad for this computer</h1>
+      <p>Scan the QR code with your phone's camera. The phone will control <b id="pcName">this computer</b> only.</p>
+    </header>
+    <section class="card">
+      <h2>Pair your phone</h2>
+      <div class="qr" id="qr"></div>
+      <div class="url" id="url"></div>
+      <div class="row">
+        <select id="ipSelect" title="Server address"></select>
+        <button id="rotate">New pairing code</button>
+      </div>
+      <p class="muted" style="font-size:13px;margin-bottom:0">Pairing code (if you typed the address manually): <span class="code" id="code"></span></p>
+    </section>
+    <div style="display:grid;gap:16px;align-content:start">
+      <section class="card">
+        <h2>Phones controlling this computer <span class="muted" id="devCount"></span></h2>
+        <table><thead><tr><th>Device</th><th>Address</th><th>Latency</th><th>Events</th><th>Connected</th></tr></thead>
+          <tbody id="devices"><tr><td colspan="5" class="muted">No phone connected yet.</td></tr></tbody></table>
+      </section>
+      <section class="card">
+        <h2>Status</h2>
+        <dl class="kv">
+          <dt>Helper</dt><dd id="helper"></dd>
+          <dt>Mouse control</dt><dd id="input"></dd>
+          <dt>Server</dt><dd id="server" class="ok">● online</dd>
+        </dl>
+        <p class="muted" style="font-size:13px;margin-bottom:0">Exports you save “on the computer” go to <b>Documents\SmartPad</b> on this computer.</p>
+      </section>
+    </div>
+  </div>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const ls = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} }, del(k) { try { localStorage.removeItem(k); } catch {} } };
+  const m = location.hash.match(/key=([\w-]+)/);
+  let key = m ? m[1] : ls.get("smartpad_host_key");
+  if (m) { ls.set("smartpad_host_key", key); history.replaceState(null, "", location.pathname); }
+  let data = null, selected = 0;
+  const ago = (t) => { const s = Math.round(Date.now() / 1000 - t); return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`; };
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function renderQR() {
+    const u = data.urls[selected] || data.urls[0];
+    $("#qr").innerHTML = u.qr;
+    $("#url").textContent = u.url;
+    $("#code").textContent = u.url.split("#pair=")[1];
+  }
+  async function load() {
+    if (!key) return;
+    try {
+      const r = await fetch("/api/host/status", { cache: "no-store", headers: { "X-SmartPad-Host-Key": key } });
+      if (r.status === 401) { ls.del("smartpad_host_key"); key = null; $("#paired").hidden = true; $("#setup").hidden = false; $("#setupHint").textContent = "This computer isn't registered any more. Start the helper again."; return; }
+      if (!r.ok) throw new Error(r.status);
+      const prevUrl = data && data.urls[selected] && data.urls[selected].url;
+      data = await r.json();
+      $("#setup").hidden = true; $("#paired").hidden = false;
+      $("#server").className = "ok"; $("#server").textContent = "● online";
+      $("#title").textContent = `SmartPad for ${data.host.name}`;
+      $("#pcName").textContent = data.host.name;
+      document.title = `SmartPad · ${data.host.name}`;
+      const opts = data.urls.map((u, i) => `<option value="${i}">${esc(u.ip)}</option>`).join("");
+      if ($("#ipSelect").innerHTML !== opts) $("#ipSelect").innerHTML = opts;
+      $("#ipSelect").value = selected;
+      if (!prevUrl || prevUrl !== (data.urls[selected] || {}).url) renderQR();
+      const devs = data.devices;
+      $("#devCount").textContent = devs.length ? `(${devs.length})` : "";
+      $("#devices").innerHTML = devs.length
+        ? devs.map((d) => `<tr><td><span class="dot"></span>${esc(d.name)}</td><td>${esc(d.ip)}</td><td>${d.latency_ms == null ? "–" : d.latency_ms + " ms"}</td><td>${d.events}</td><td>${ago(d.since)}</td></tr>`).join("")
+        : `<tr><td colspan="5" class="muted">No phone connected yet.</td></tr>`;
+      $("#helper").innerHTML = data.host.online ? '<span class="ok">● running</span>' : '<span class="bad">● not running — start “Start SmartPad Helper” again</span>';
+      $("#input").innerHTML = !data.host.online ? '<span class="muted">–</span>' : data.host.input_control ? '<span class="ok">Enabled</span>' : `<span class="bad">Disabled</span> ${esc(data.host.input_error || "")}`;
+    } catch (e) {
+      $("#server").className = "bad"; $("#server").textContent = "● SmartPad server not reachable";
+    }
+  }
+  $("#ipSelect").onchange = (e) => { selected = +e.target.value; renderQR(); };
+  $("#rotate").onclick = async () => {
+    if (!confirm("Create a new pairing code? Phones connected to this computer will be disconnected and must scan again.")) return;
+    await fetch("/api/host/rotate", { method: "POST", headers: { "X-SmartPad-Host-Key": key } });
+    data = null; load();
+  };
+  load();
+  setInterval(load, 1500);
+})();
+</script>
+</body>
+</html>
